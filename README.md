@@ -66,13 +66,31 @@ python data_ingestion.py
 ```
 *This script will output dataset summaries to the terminal and generate a `day1_data_quality_report.md` file in the `reports/` directory.*
 
+### 3. Running Data Cleaning & ETL Pipeline (Day 2)
+Run the following command to execute the robust data cleaning pipeline:
+```bash
+python data_cleaning.py
+```
+*This script will read individual fund NAV CSVs, combine them into `nav_history.csv` in `data/raw/` (and generate mock transaction/performance data if missing). It then cleans the datasets, performs validations, forward-fills weekend/holiday gaps, and saves the outputs to `data/processed/`. It also generates detailed anomaly and validation reports in `reports/`.*
+
+### 4. Running Database Loading & Schema Verification (Day 2)
+Run the following command to initialize the star schema and load the processed data into SQLite:
+```bash
+python database_loader.py
+```
+*This script reads DDL from `sql/schema.sql`, creates `bluestock_mf.db`, populates dimensions and fact tables, dynamically generates the calendar dimension `dim_date`, and runs a verification audit checking database row counts against sources.*
+
+### 5. Running Analytical SQL Queries
+Open `sql/queries.sql` to inspect or execute the 10 business-focused analytical queries (e.g., Top 5 funds by AUM, Avg Monthly NAV, YoY SIP growth, State analysis, Category-wise performance, Redemption analysis).
+
 ## Expected Outputs
 
-**When you run `live_nav_fetch.py`**:
-- You will see logging messages indicating the successful retrieval of data.
-- Example: `2024-05-18 10:00:00 - INFO - Successfully saved HDFC Top 100 Direct data to data\raw\hdfc_top_100_direct_nav.csv`
+**When you run `data_cleaning.py`**:
+- You will see logging messages indicating raw files checks, database combinations, date parsing, gap filling, and report generation.
+- Detailed markdown cleaning summaries are saved to `reports/nav_history_cleaning_summary.md`, `reports/investor_transactions_anomaly_report.md`, and `reports/scheme_performance_validation_report.md`.
 
-**When you run `data_ingestion.py`**:
-- A professional warning will display if the legacy datasets `fund_master.csv` and `nav_history.csv` are missing.
-- For each downloaded CSV file, a structured summary of its shape, columns, data types, first 5 rows, and missing values will be printed directly to the console.
-- A final report file will be generated at `reports/day1_data_quality_report.md` for sharing with stakeholders.
+**When you run `database_loader.py`**:
+- A console loading report is outputted checking rows.
+- The SQLite file `bluestock_mf.db` is built in the project root.
+- A loading verification report is saved to `reports/database_loading_report.md`.
+
